@@ -16,4 +16,24 @@ class Chamado extends Model
     {
         return $this->hasMany(Interaction::class, 'chamado_id');
     }
+
+    public function ultimaInteracao()
+    {
+        return $this->hasOne(Interaction::class, 'chamado_id')->latestOfMany();
+    }
+
+    public function precisaAtencao()
+    {
+        if ($this->status === 'Fechado' || $this->status === 'Concluído') {
+            return false;
+        }
+
+        // Se não houver interações, é um chamado novo que precisa de atenção
+        if (!$this->ultimaInteracao) {
+            return true;
+        }
+
+        // Se a última interação foi do solicitante, precisa de atenção
+        return $this->ultimaInteracao->tipo === 'solicitante';
+    }
 }

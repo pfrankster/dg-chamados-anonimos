@@ -93,45 +93,42 @@ class ChamadoController extends Controller
     }
 
 
-    // Exibir todos os chamados para o administrador
-    public function listar()
+    /*
+    |--------------------------------------------------------------------------
+    | Métodos da Nova Área de Gestão
+    |--------------------------------------------------------------------------
+    */
+
+    public function listarMgmt()
     {
-        $chamados = Chamado::orderBy('created_at', 'desc')->get();
-        return view('admin.chamados', compact('chamados'));
+        $chamados = Chamado::with('ultimaInteracao')->orderBy('created_at', 'desc')->get();
+        return view('mgmt.chamados.index', compact('chamados'));
     }
 
-    // Exibir detalhes do chamado e interações para o administrador
-    public function detalhesAdmin($hash)
+    public function detalhesMgmt($hash)
     {
-        $chamado = Chamado::where('login_hash', $hash)->firstOrFail();
-        return view('admin.detalhes', compact('chamado'));
+        $chamado = Chamado::where('login_hash', $hash)->with('interacoes')->firstOrFail();
+        return view('mgmt.chamados.detalhes', compact('chamado'));
     }
 
-    // Adicionar uma resposta como administrador
-    public function respostaAdmin(Request $request, $hash)
+    public function respostaMgmt(Request $request, $hash)
     {
         $request->validate([
             'mensagem' => 'required|string',
-            'status' => 'required|string|in:Aberto,Fechado',
+            'status' => 'required|string|in:Aberto,Em Análise,Fechado,Concluído',
         ]);
 
         $chamado = Chamado::where('login_hash', $hash)->firstOrFail();
 
-        // Verificar se o chamado já está fechado
-        if ($chamado->status === 'fechado') {
-            return back()->withErrors(['message' => 'Chamado já está fechado.']);
-        }
-
-        // Adicionar a resposta do administrador
+        // Adicionar interação do atendente/admin
         $chamado->interacoes()->create([
             'mensagem' => $request->mensagem,
-            'tipo' => 'admin',
+            'tipo' => 'resposta',
+            'user_id' => auth()->id(),
         ]);
 
-        // Alterar o status do chamado, se necessário
-        $chamado->status = $request->status;
-        $chamado->save();
+        $chamado->update(['status' => $request->status]);
 
-        return back()->with('success', 'Resposta adicionada com sucesso.');
+        return back()->with('success', 'Resposta enviada com sucesso!');
     }
 }

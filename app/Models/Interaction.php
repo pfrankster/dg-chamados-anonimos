@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class Interaction extends Model
 {
     use HasFactory;
-    protected $fillable = ['chamado_id', 'tipo', 'mensagem'];
+    protected $fillable = ['chamado_id', 'tipo', 'mensagem', 'user_id'];
 }

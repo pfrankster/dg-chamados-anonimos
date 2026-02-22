@@ -47,13 +47,40 @@ Route::get('/chamado/{hash}/detalhes', [ChamadoController::class, 'detalhes'])->
 Route::post('/chamado/{hash}/interagir', [ChamadoController::class, 'interagir'])->name('chamado.interagir');
 
 
-//ROTAS DO ADMIN
+/*
+|--------------------------------------------------------------------------
+| Rotas de Gestão (Autenticadas)
+|--------------------------------------------------------------------------
+*/
 
-// Rota para listar os chamados do administrador
-Route::get('/admin/chamados', [ChamadoController::class, 'listar'])->name('admin.chamados');
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ManagementController; // Precisarei criar este controller ou separar
 
-// Rota para visualizar detalhes do chamado
-Route::get('/admin/chamado/{hash}', [ChamadoController::class, 'detalhesAdmin'])->name('admin.chamado.detalhes');
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Rota para adicionar respostas como administrador
-Route::post('/admin/chamado/{hash}/resposta', [ChamadoController::class, 'respostaAdmin'])->name('admin.chamado.resposta');
+Route::middleware(['auth'])->group(function () {
+
+    // Rotas acessíveis por ambos (Admin e Atendente)
+    Route::get('/mgmt/chamados', [ChamadoController::class, 'listarMgmt'])->name('mgmt.chamados');
+    Route::get('/mgmt/chamado/{hash}', [ChamadoController::class, 'detalhesMgmt'])->name('mgmt.chamado.detalhes');
+    Route::post('/mgmt/chamado/{hash}/resposta', [ChamadoController::class, 'respostaMgmt'])->name('mgmt.chamado.resposta');
+
+    // Rotas exclusivas de Administrador
+    Route::middleware(['role:admin'])->group(function () {
+        Route::get('/mgmt/admin/dashboard', [ManagementController::class, 'adminDashboard'])->name('mgmt.admin.dashboard');
+        Route::get('/mgmt/admin/atendentes', [ManagementController::class, 'listAttendants'])->name('mgmt.admin.atendentes');
+        Route::post('/mgmt/admin/atendentes/store', [ManagementController::class, 'storeAttendant'])->name('mgmt.admin.atendentes.store');
+        Route::delete('/mgmt/admin/atendentes/{id}', [ManagementController::class, 'destroyAttendant'])->name('mgmt.admin.atendentes.destroy');
+    });
+
+    // Rotas de Atendente (ou dashboard simplificado)
+    Route::middleware(['role:attendant'])->group(function () {
+        Route::get('/mgmt/attendant/dashboard', [ManagementController::class, 'attendantDashboard'])->name('mgmt.attendant.dashboard');
+    });
+
+});
+
+
+
