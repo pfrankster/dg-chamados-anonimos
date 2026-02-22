@@ -22,6 +22,11 @@ class Chamado extends Model
         return $this->hasOne(Interaction::class, 'chamado_id')->latestOfMany();
     }
 
+    public function anexos()
+    {
+        return $this->morphMany(Attachment::class, 'attachable');
+    }
+
     public function precisaAtencao()
     {
         if ($this->status === 'Fechado' || $this->status === 'Concluído') {

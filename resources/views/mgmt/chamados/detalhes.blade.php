@@ -19,15 +19,31 @@
     <!-- Coluna da Esquerda: Informações e Histórico -->
     <div class="lg:col-span-2 space-y-10">
         <!-- Info do Chamado -->
-        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-8">
-            <div class="flex flex-wrap gap-4 mb-6">
-                <span class="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-xs font-bold uppercase tracking-wider">{{ $chamado->tipo }}</span>
-                <span class="px-3 py-1 bg-slate-100 text-slate-500 rounded-full text-xs font-bold uppercase tracking-wider">Criado em {{ $chamado->created_at->format('d/m/Y H:i') }}</span>
-            </div>
-            
-            <h3 class="text-2xl font-bold text-slate-900 mb-4">{{ $chamado->assunto }}</h3>
-            <div class="bg-slate-50 rounded-2xl p-6 text-slate-700 leading-relaxed italic border border-slate-100">
-                "{{ $chamado->descricao }}"
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm">
+            <div class="p-8">
+                <div class="flex flex-wrap gap-4 mb-6">
+                    <span class="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-xs font-bold uppercase tracking-wider">{{ $chamado->tipo }}</span>
+                    <span class="px-3 py-1 bg-slate-100 text-slate-500 rounded-full text-xs font-bold uppercase tracking-wider">Criado em {{ $chamado->created_at->format('d/m/Y H:i') }}</span>
+                </div>
+                
+                <h3 class="text-2xl font-bold text-slate-900 mb-4">{{ $chamado->assunto }}</h3>
+                <div class="bg-slate-50 rounded-2xl p-6 text-slate-700 leading-relaxed italic border border-slate-100 mb-4">
+                    "{{ $chamado->descricao }}"
+                </div>
+
+                @if($chamado->anexos->count() > 0)
+                    <div class="flex flex-wrap gap-2">
+                        @foreach($chamado->anexos as $anexo)
+                            <a href="{{ Storage::url($anexo->file_path) }}" target="_blank" 
+                                class="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-600 hover:border-indigo-400 hover:text-indigo-600 transition-all shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                </svg>
+                                <span class="max-w-[200px] truncate">{{ $anexo->original_name }}</span>
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </div>
 
@@ -58,6 +74,20 @@
                             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ $interacao->created_at->format('d/m/Y H:i') }}</span>
                         </div>
                         <p class="text-sm text-slate-700 leading-relaxed font-outfit">{{ $interacao->mensagem }}</p>
+
+                        @if($interacao->anexos->count() > 0)
+                            <div class="mt-3 flex flex-wrap gap-2">
+                                @foreach($interacao->anexos as $anexo)
+                                    <a href="{{ Storage::url($anexo->file_path) }}" target="_blank" 
+                                        class="flex items-center gap-2 px-2 py-1 bg-slate-50 border border-slate-100 rounded text-[10px] font-bold text-slate-500 hover:border-indigo-300 hover:text-indigo-600 transition-all">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                        </svg>
+                                        <span class="max-w-[150px] truncate">{{ $anexo->original_name }}</span>
+                                    </a>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
                 @empty
                     <div class="p-10 text-center text-slate-400 italic text-sm">Nenhuma interação registrada.</div>
@@ -71,7 +101,7 @@
         <div class="bg-white rounded-3xl border border-slate-200 shadow-xl p-8 sticky top-8">
             <h3 class="text-lg font-bold text-slate-900 mb-6">Enviar Resposta</h3>
             
-            <form action="{{ route('mgmt.chamado.resposta', $chamado->login_hash) }}" method="POST" class="space-y-6">
+            <form action="{{ route('mgmt.chamado.resposta', $chamado->login_hash) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                 @csrf
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Mensagem</label>
@@ -88,6 +118,32 @@
                         <option value="Concluído" {{ $chamado->status === 'Concluído' ? 'selected' : '' }}>Concluído</option>
                     </select>
                 </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Anexar Documentos (Opcional)</label>
+                    <label for="mgmt_anexos" class="flex items-center justify-center gap-2 w-full p-4 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 hover:border-indigo-400 transition-all text-sm font-bold text-slate-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        <span>Adicionar Arquivos</span>
+                        <input id="mgmt_anexos" name="anexos[]" type="file" class="hidden" multiple />
+                    </label>
+                    <div id="file-list-mgmt" class="mt-2 space-y-1"></div>
+                </div>
+
+                <script>
+                    document.getElementById('mgmt_anexos').addEventListener('change', function(e) {
+                        const list = document.getElementById('file-list-mgmt');
+                        list.innerHTML = '';
+                        const files = Array.from(e.target.files).slice(0, 5);
+                        files.forEach(file => {
+                            const item = document.createElement('div');
+                            item.className = 'text-[10px] text-indigo-600 font-bold bg-indigo-50 px-2 py-1 rounded truncate';
+                            item.textContent = file.name;
+                            list.appendChild(item);
+                        });
+                    });
+                </script>
 
                 <button type="submit" 
                     class="w-full flex justify-center items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 shadow-lg shadow-indigo-100 hover:-translate-y-1">

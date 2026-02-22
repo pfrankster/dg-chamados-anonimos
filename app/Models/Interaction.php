@@ -9,4 +9,9 @@ class Interaction extends Model
 {
     use HasFactory;
     protected $fillable = ['chamado_id', 'tipo', 'mensagem', 'user_id'];
+
+    public function anexos()
+    {
+        return $this->morphMany(Attachment::class, 'attachable');
+    }
 }

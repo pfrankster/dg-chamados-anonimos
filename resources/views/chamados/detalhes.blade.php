@@ -3,17 +3,17 @@
 @section('title', 'Detalhes do Chamado - Chamados Anônimos')
 
 @section('content')
-<div class="max-w-4xl mx-auto px-4 py-12">
+<div style="max-width: 56rem; margin-left: auto; margin-right: auto; padding: 3rem 1rem;">
     <div class="mb-10 flex items-center justify-between">
         <div>
             <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Detalhes do Chamado</h2>
             <p class="text-slate-500 mt-2">Acompanhe o andamento da sua manifestação protocolo <span class="font-mono font-bold text-indigo-600">{{ $chamado->login_hash }}</span></p>
         </div>
-        <a href="{{ route('chamado.consulta') }}" class="flex items-center gap-2 text-slate-400 hover:text-indigo-600 font-bold text-sm transition-colors group">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        <a href="{{ route('home') }}" class="flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all hover:-translate-y-0.5" style="background-color: #F7c863; color: #64748b; border: 1px solid #e2e8f0;">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
-            Voltar
+            Sair
         </a>
     </div>
 
@@ -42,9 +42,23 @@
 
             <div class="p-8">
                 <h3 class="text-xl font-bold text-slate-900 mb-4">{{ $chamado->assunto }}</h3>
-                <div class="text-slate-600 leading-relaxed bg-slate-50 rounded-2xl p-6 italic border border-slate-100 relative quote-icon">
+                <div class="text-slate-600 leading-relaxed bg-slate-50 rounded-2xl p-6 italic border border-slate-100 relative quote-icon mb-4">
                     "{{ $chamado->descricao }}"
                 </div>
+
+                @if($chamado->anexos->count() > 0)
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        @foreach($chamado->anexos as $anexo)
+                            <a href="{{ Storage::url($anexo->file_path) }}" target="_blank" 
+                                class="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-600 hover:border-indigo-400 hover:text-indigo-600 transition-all shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                </svg>
+                                <span class="max-w-[150px] truncate">{{ $anexo->original_name }}</span>
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </div>
 
@@ -65,6 +79,20 @@
                             <span class="text-[10px] font-medium text-slate-400">{{ $interacao->created_at->format('d/m/Y H:i') }}</span>
                         </div>
                         <p class="text-slate-700 leading-relaxed">{{ $interacao->mensagem }}</p>
+                        
+                        @if($interacao->anexos->count() > 0)
+                            <div class="mt-4 flex flex-wrap gap-2">
+                                @foreach($interacao->anexos as $anexo)
+                                    <a href="{{ Storage::url($anexo->file_path) }}" target="_blank" 
+                                        class="flex items-center gap-2 px-3 py-2 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-bold text-slate-500 hover:border-indigo-300 hover:text-indigo-600 transition-all">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                        </svg>
+                                        <span class="max-w-[120px] truncate">{{ $anexo->original_name }}</span>
+                                    </a>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
                 @empty
                     <div class="p-12 text-center">
@@ -81,16 +109,42 @@
 
         <!-- Formulário de Interação -->
         @if ($chamado->status === 'Aberto' || $chamado->status === 'Em Análise')
-            <div class="bg-indigo-900 rounded-3xl p-8 text-white shadow-xl shadow-indigo-200 animate-in zoom-in-95 duration-500">
+            <div class="rounded-3xl p-8 shadow-xl animate-in zoom-in-95 duration-500" style="background-color: #312e81; color: #fff;">
                 <h3 class="text-xl font-bold mb-2">Deseja acrescentar algo?</h3>
-                <p class="text-indigo-200 text-sm mb-6">Sua mensagem será enviada diretamente à nossa equipe técnica.</p>
+                <p class="text-sm mb-6" style="color: #a5b4fc;">Sua mensagem será enviada diretamente à nossa equipe técnica. Você também pode anexar arquivos se necessário.</p>
 
-                <form action="{{ route('chamado.interagir', ['hash' => $chamado->login_hash]) }}" method="POST" class="space-y-4">
+                <form action="{{ route('chamado.interagir', ['hash' => $chamado->login_hash]) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                     @csrf
                     <textarea name="mensagem" rows="4" required placeholder="Digite sua mensagem aqui..."
-                        class="block w-full rounded-2xl border-0 bg-white/10 py-4 px-5 text-white placeholder:text-indigo-300 focus:ring-2 focus:ring-inset focus:ring-indigo-400 transition-all resize-none"></textarea>
+                        class="block w-full rounded-2xl border-0 py-4 px-5 transition-all resize-none" style="background-color: rgba(255,255,255,0.1); color: #fff;"></textarea>
                     
-                    <button type="submit" class="inline-flex items-center gap-2 bg-white text-indigo-900 font-bold py-4 px-8 rounded-2xl hover:bg-indigo-50 transition-all duration-300 shadow-lg shadow-black/10 hover:-translate-y-1">
+                    <div class="flex flex-wrap items-center gap-4">
+                        <label for="anexos_interacao" class="flex items-center gap-2 px-4 py-2 rounded-xl cursor-pointer transition-all text-xs font-bold" style="background-color: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                            </svg>
+                            Anexar Arquivos (Até 5)
+                            <input id="anexos_interacao" name="anexos[]" type="file" class="hidden" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" />
+                        </label>
+                        <div id="file-list" class="flex flex-wrap gap-2"></div>
+                    </div>
+
+                    <script>
+                        document.getElementById('anexos_interacao').addEventListener('change', function(e) {
+                            const list = document.getElementById('file-list');
+                            list.innerHTML = '';
+                            const files = Array.from(e.target.files).slice(0, 5);
+                            files.forEach(file => {
+                                const item = document.createElement('span');
+                                item.className = 'px-2 py-1 rounded text-xs font-medium';
+                                item.style.cssText = 'background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.05);color:#fff;';
+                                item.textContent = file.name;
+                                list.appendChild(item);
+                            });
+                        });
+                    </script>
+                    
+                    <button type="submit" class="inline-flex items-center gap-2 font-bold py-4 px-8 rounded-2xl transition-all duration-300 shadow-lg hover:-translate-y-1 mt-4" style="background-color: #fff; color: #312e81;">
                         <span>Enviar Mensagem</span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />

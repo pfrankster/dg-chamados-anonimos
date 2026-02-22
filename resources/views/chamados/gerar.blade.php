@@ -23,7 +23,7 @@
 
         <div class="bg-white/80 backdrop-blur-xl rounded-3xl border border-slate-200 shadow-xl overflow-hidden">
             <div class="p-8 sm:p-10">
-                <form action="{{ route('chamado.store') }}" method="POST" class="space-y-8">
+                <form action="{{ route('chamado.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
                     @csrf
 
                     <!-- Tipo de Registro -->
@@ -70,6 +70,58 @@
                             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+
+                    <!-- Anexos -->
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Anexos (Opcional)</label>
+                        <div class="relative group">
+                            <div class="flex items-center justify-center w-full">
+                                <label for="anexos" class="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-200 border-dashed rounded-2xl cursor-pointer bg-slate-50/50 group-hover:bg-slate-100 group-hover:border-indigo-400 transition-all">
+                                    <div class="flex flex-col items-center justify-center pt-5 pb-6 text-slate-500 group-hover:text-indigo-600">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        <p class="text-sm font-medium">Clique para enviar ou arraste os arquivos</p>
+                                        <p class="text-xs opacity-60">PNG, JPG, PDF, DOC (Max. 5 arquivos, 5MB cada)</p>
+                                    </div>
+                                    <input id="anexos" name="anexos[]" type="file" class="hidden" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" />
+                                </label>
+                            </div>
+                            <div id="file-list" class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+                        </div>
+                        @error('anexos')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                        @error('anexos.*')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <script>
+                        document.getElementById('anexos').addEventListener('change', function(e) {
+                            const list = document.getElementById('file-list');
+                            list.innerHTML = '';
+                            
+                            const files = Array.from(e.target.files).slice(0, 5);
+                            if (e.target.files.length > 5) {
+                                alert('Você só pode selecionar até 5 arquivos.');
+                                // Opcional: resetar input ou truncar
+                            }
+
+                            files.forEach(file => {
+                                const item = document.createElement('div');
+                                item.className = 'flex items-center gap-2 p-2 bg-indigo-50 border border-indigo-100 rounded-lg text-xs font-medium text-indigo-700';
+                                item.innerHTML = `
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                    </svg>
+                                    <span class="truncate">${file.name}</span>
+                                    <span class="ml-auto opacity-50">${(file.size / 1024).toFixed(1)} KB</span>
+                                `;
+                                list.appendChild(item);
+                            });
+                        });
+                    </script>
 
                     <!-- Botão de Envio -->
                     <div class="pt-4">
