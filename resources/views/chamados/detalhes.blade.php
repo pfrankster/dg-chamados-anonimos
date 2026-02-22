@@ -13,8 +13,11 @@
     </div>
 
     <div class="mb-3">
-        {{-- <label class="form-label">Status:</label> --}}
-        <p>Status: {{ ucfirst($chamado->status) }}</p>
+        <p><strong>Tipo de Registro:</strong> {{ $chamado->tipo }}</p>
+    </div>
+
+    <div class="mb-3">
+        <p><strong>Status:</strong> {{ ucfirst($chamado->status) }}</p>
     </div>
 
     <h4>Interações</h4>

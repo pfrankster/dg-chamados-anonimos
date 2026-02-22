@@ -3,6 +3,7 @@
     <!-- Detalhes do Chamado -->
     <h3>{{ $chamado->assunto }}</h3>
     <p>{{ $chamado->descricao }}</p>
+    <p><strong>Tipo:</strong> {{ $chamado->tipo }}</p>
     <p><strong>Status:</strong> {{ ucfirst($chamado->status) }}</p>
     <p><strong>Data de Abertura:</strong> {{ $chamado->created_at->format('d/m/Y H:i') }}</p>
 

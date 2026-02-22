@@ -20,7 +20,7 @@ class ChamadoController extends Controller
         $request->validate([
             'assunto' => 'required|string|max:255',
             'descricao' => 'required|string',
-            'instituicao' => 'required|string|max:255',
+            'tipo' => 'required|string|max:255',
         ]);
 
         // Gerar login hash de 8 caracteres e senha numérica de 8 dígitos
@@ -29,7 +29,7 @@ class ChamadoController extends Controller
 
         $chamado = Chamado::create([
             'assunto' => $request->assunto,
-            'instituicao' => $request->instituicao,
+            'tipo' => $request->tipo,
             'descricao' => $request->descricao,
             'login_hash' => $login,
             'senha_numerica' => $senha,
